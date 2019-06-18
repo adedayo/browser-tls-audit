@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"path"
+	"strings"
 	"sync"
 
 	homedir "github.com/mitchellh/go-homedir"
@@ -36,7 +37,7 @@ var (
 	domain, httpsPort = getFlags()
 	certManager       = autocert.Manager{
 		Prompt:     autocert.AcceptTOS,
-		HostPolicy: autocert.HostWhitelist(domain),
+		HostPolicy: autocert.HostWhitelist(strings.Split(domain, ",")...),
 		Cache:      autocert.DirCache(cachePath),
 	}
 )
@@ -130,6 +131,9 @@ func https(port int) {
 		Handler:   mux,
 		TLSConfig: getTLSConfig(),
 	}
+
+	go http.ListenAndServe(":http", certManager.HTTPHandler(nil))
+
 	log.Fatal(server.ListenAndServeTLS("", ""))
 }
 
@@ -139,6 +143,7 @@ func getTLSConfig() *tls.Config {
 		MinVersion:               tls.VersionTLS10,
 		PreferServerCipherSuites: true,
 		GetCertificate:           certManager.GetCertificate,
+		ServerName:               domain,
 		// NextProtos: append([],autocert.ALPNProto),
 	}
 }
