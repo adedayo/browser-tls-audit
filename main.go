@@ -136,9 +136,10 @@ func https(port int) {
 func getTLSConfig() *tls.Config {
 	return &tls.Config{
 		GetConfigForClient:       clientConfigGetter,
-		MinVersion:               tls.VersionTLS12,
+		MinVersion:               tls.VersionTLS10,
 		PreferServerCipherSuites: true,
 		GetCertificate:           certManager.GetCertificate,
+		// NextProtos: append([],autocert.ALPNProto),
 	}
 }
 
@@ -164,9 +165,9 @@ func auditBrowser(w http.ResponseWriter, req *http.Request) {
 	helloMutex.RUnlock()
 }
 
-func clientConfigGetter(helloInfo *tls.ClientHelloInfo) (conf *tls.Config, err error) {
+func clientConfigGetter(helloInfo *tls.ClientHelloInfo) (*tls.Config, error) {
 	messageBus <- helloInfo
-	return
+	return nil, nil
 }
 
 func handleConnection(conn net.Conn) {
