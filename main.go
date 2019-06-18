@@ -33,8 +33,8 @@ var (
 		}
 		return
 	}()
-	domain, rawtlsPort = getFlags()
-	certManager        = autocert.Manager{
+	domain, httpsPort = getFlags()
+	certManager       = autocert.Manager{
 		Prompt:     autocert.AcceptTOS,
 		HostPolicy: autocert.HostWhitelist(domain),
 		Cache:      autocert.DirCache(cachePath),
@@ -53,9 +53,9 @@ type tlsInfoAndAgent struct {
 
 func main() {
 
-	println(domain, rawtlsPort)
-	go rawTLS(rawtlsPort)
-	go https(rawtlsPort + 1)
+	fmt.Printf("Bound to domain %s using HTTPS port %d", domain, httpsPort)
+	// go rawTLS(httpsPort -1)
+	go https(httpsPort + 1)
 	go readMessages()
 
 	for info := range infoWriter {
@@ -66,7 +66,7 @@ func main() {
 func getFlags() (string, int) {
 
 	domain := flag.String("domain", "hostname", "The public domain name of this server")
-	port := flag.Int("port", 54320, "The port of the raw TLS server socket, the HTTPS port is +1 that value")
+	port := flag.Int("port", 443, "The HTTPS port. The the raw TLS server socket is the (HTTPS port) - 1")
 	flag.Parse()
 	return *domain, *port
 }
