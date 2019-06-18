@@ -53,9 +53,9 @@ type tlsInfoAndAgent struct {
 
 func main() {
 
-	fmt.Printf("Bound to domain %s using HTTPS port %d", domain, httpsPort)
+	fmt.Printf("Bound to domain %s using HTTPS port %d\n", domain, httpsPort)
 	// go rawTLS(httpsPort -1)
-	go https(httpsPort + 1)
+	go https(httpsPort)
 	go readMessages()
 
 	for info := range infoWriter {
