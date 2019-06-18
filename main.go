@@ -34,8 +34,8 @@ var (
 		}
 		return
 	}()
-	domain, httpsPort = getFlags()
-	certManager       = autocert.Manager{
+	domain, httpsPort, certificatePath, keyPath = getFlags()
+	certManager                                 = autocert.Manager{
 		Prompt:     autocert.AcceptTOS,
 		HostPolicy: autocert.HostWhitelist(strings.Split(domain, ",")...),
 		Cache:      autocert.DirCache(cachePath),
@@ -64,12 +64,14 @@ func main() {
 	}
 }
 
-func getFlags() (string, int) {
+func getFlags() (domain string, port int, cert, key string) {
 
-	domain := flag.String("domain", "hostname", "The public domain name of this server")
-	port := flag.Int("port", 443, "The HTTPS port. The the raw TLS server socket is the (HTTPS port) - 1")
+	dd := flag.String("domain", "hostname", "The public domain name of this server")
+	pp := flag.Int("port", 443, "The HTTPS port. The the raw TLS server socket is the (HTTPS port) - 1")
+	cc := flag.String("cert", "", "The certificate file to use (optional), will attempt to get a cert from Letsencrypt if not specified")
+	kk := flag.String("key", "", "The certificate key file to use (optional), will attempt to get a key from Letsencrypt if not specified")
 	flag.Parse()
-	return *domain, *port
+	return *dd, *pp, *cc, *kk
 }
 
 func readMessages() {
@@ -142,12 +144,29 @@ func getTLSConfig() *tls.Config {
 		GetConfigForClient:       clientConfigGetter,
 		MinVersion:               tls.VersionTLS10,
 		PreferServerCipherSuites: true,
-		GetCertificate:           certManager.GetCertificate,
-		ServerName:               domain,
-		// NextProtos: append([],autocert.ALPNProto),
+		GetCertificate:           getLocalOrAutoCert(),
+		Certificates:             getLocalCerts(),
 	}
 }
 
+func getLocalCerts() (certs []tls.Certificate) {
+	if len(certificatePath) > 0 && len(keyPath) > 0 {
+		cert, err := tls.LoadX509KeyPair(certificatePath, keyPath)
+		if err != nil {
+			log.Fatal(err)
+			return
+		}
+		certs = append(certs, cert)
+	}
+	return
+}
+
+func getLocalOrAutoCert() func(*tls.ClientHelloInfo) (*tls.Certificate, error) {
+	if len(certificatePath) > 0 && len(keyPath) > 0 {
+		return nil
+	}
+	return certManager.GetCertificate
+}
 func auditBrowser(w http.ResponseWriter, req *http.Request) {
 	messageBus <- remoteAddressAndAgent{
 		remote: req.RemoteAddr,
