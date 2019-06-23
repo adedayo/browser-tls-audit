@@ -1,10 +1,19 @@
+project_name: browser-tlsaudit-service
 before:
   hooks:
     - go mod download
     - go generate ./...
 builds:
-- env:
-  - CGO_ENABLED=0
+  - 
+    main: ./cmd/main.go
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - darwin
+      - linux
+      - windows
+    goarch:
+      - amd64
 archives:
 - replacements:
     darwin: Darwin
