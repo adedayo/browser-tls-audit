@@ -44,9 +44,10 @@ func (t *TLSInfoAndAgent) UnmarshalJSON(data []byte) error {
 		case "Agent":
 			if agent, ok := v.(string); ok {
 				t.Agent = agent
-			} else {
-				return fmt.Errorf("Expects a string %s, but got %#v", k, v)
 			}
+			// else {
+			// 	return fmt.Errorf("Expects a string %s, but got %#v", k, v)
+			// }
 		case "HelloInfo":
 			hi := tls.ClientHelloInfo{}
 			m2, ok := v.(map[string]interface{})
@@ -59,56 +60,64 @@ func (t *TLSInfoAndAgent) UnmarshalJSON(data []byte) error {
 				case "ServerName":
 					if sn, ok := v2.(string); ok {
 						hi.ServerName = sn
-					} else {
-						return fmt.Errorf("Expects a string %s, but got %#v", k2, v2)
 					}
+					// else {
+					// 	return fmt.Errorf("Expects a string %s, but got %#v", k2, v2)
+					// }
 				case "SupportedProtos":
 					if sp, ok := v2.([]interface{}); ok {
 						for _, p := range sp {
 							if proto, ok := p.(string); ok {
 								hi.SupportedProtos = append(hi.SupportedProtos, proto)
-							} else {
-								return fmt.Errorf("Expects a string, but got %#v", p)
 							}
+							// else {
+							// 	return fmt.Errorf("Expects a string, but got %#v", p)
+							// }
 						}
-					} else {
-						return fmt.Errorf("Expects a string slice %s, but got %#v", k2, v2)
 					}
+					// else {
+					// 	return fmt.Errorf("Expects a string slice %s, but got %#v", k2, v2)
+					// }
 				case "CipherSuites":
 					if cs, err := parseUint16Strings(k2, v2); err == nil {
 						hi.CipherSuites = cs
-					} else {
-						return err
 					}
+					// else {
+					// 	return err
+					// }
 				case "SupportedCurves":
 					if cs, err := parseCurveStrings(k2, v2); err == nil {
 						hi.SupportedCurves = cs
-					} else {
-						return err
 					}
+					//  else {
+					// 	return err
+					// }
 				case "SupportedPoints":
 					if cs, err := parsePointsStrings(k2, v2); err == nil {
 						hi.SupportedPoints = cs
-					} else {
-						return err
 					}
+					//  else {
+					// 	return err
+					// }
 				case "SupportedSchemes":
 					if cs, err := parseSchemesStrings(k2, v2); err == nil {
 						hi.SignatureSchemes = cs
-					} else {
-						return err
 					}
+					// else {
+					// 	return err
+					// }
 				case "SupportedVersions":
 					if cs, err := parseUint16Strings(k2, v2); err == nil {
 						hi.SupportedVersions = cs
-					} else {
-						return err
 					}
+					// else {
+					// 	return err
+					// }
 				}
 			}
 			t.HelloInfo = &hi
 		default:
-			return fmt.Errorf("Unexpected field %s with value %#v", k, v)
+			// return fmt.Errorf("Unexpected field %s with value %#v", k, v)
 		}
 	}
 	return nil
