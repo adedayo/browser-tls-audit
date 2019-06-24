@@ -211,7 +211,7 @@ func showResults(w http.ResponseWriter, req *http.Request) {
 			println(err.Error())
 		}
 	}
-	w.Header().Set("Content-Type", "text/html")
+	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(out)
 }
 
