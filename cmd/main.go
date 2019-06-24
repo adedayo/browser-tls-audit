@@ -211,7 +211,7 @@ func showResults(w http.ResponseWriter, req *http.Request) {
 			println(err.Error())
 		}
 	}
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Content-Type", "text/html")
 	json.NewEncoder(w).Encode(out)
 }
 
@@ -229,7 +229,7 @@ func auditBrowser(w http.ResponseWriter, req *http.Request) {
 			HelloInfo: hello,
 		}
 		if js, err := json.Marshal(data); err == nil {
-			w.Header().Set("Content-Type", "application/json")
+			w.Header().Set("Content-Type", "text/html")
 			w.Write(js)
 		}
 	}
