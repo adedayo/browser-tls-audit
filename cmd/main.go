@@ -163,7 +163,7 @@ func https(port int) {
 func getTLSConfig() *tls.Config {
 	return &tls.Config{
 		GetConfigForClient:       clientConfigGetter,
-		MinVersion:               tls.VersionTLS12,
+		MinVersion:               tls.VersionTLS10,
 		PreferServerCipherSuites: true,
 		GetCertificate:           getLocalOrAutoCert(),
 		Certificates:             getLocalCerts(),
